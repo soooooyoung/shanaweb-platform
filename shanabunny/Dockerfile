@@ -1,30 +1,21 @@
-# Base image for build
-FROM node:20-alpine AS base
-
+# ----------- Builder Stage -----------
+FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Install dependencies
 COPY package.json package-lock.json* ./
-RUN npm ci
+RUN npm ci --omit=dev
 
-# Copy entire project, including .env
 COPY . .
+RUN npm run build && rm -rf src pages components
 
-# Build the app (reads .env if needed)
-RUN npm run build
-
-# Runtime image
+# ----------- Runner Stage -----------
 FROM node:20-alpine AS runner
-
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Copy runtime assets from builder
-COPY --from=base /app/public ./public
-COPY --from=base /app/.next ./.next
-COPY --from=base /app/node_modules ./node_modules
-COPY --from=base /app/package.json ./package.json
-COPY --from=base /app/.env ./.env
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.env ./.env
 
-# Start the Next.js app
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
