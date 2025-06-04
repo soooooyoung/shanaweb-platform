@@ -12,7 +12,7 @@ This is a full-stack monorepo for **ShanaWeb**, a web platform built with:
 ### Frontend (Next.js - `shanabunny`)
 
 <img src="images/home.png" height=300>
-<img src="images/singin.png" height=300>
+<img src="images/signin.png" height=300>
 <img src="images/features.png" height=300>
 
 - Built with **App Router** (from Next.js 13+).
